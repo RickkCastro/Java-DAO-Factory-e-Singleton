@@ -1,0 +1,16 @@
+# Compilados
+bin/
+target/
+out/
+*.class
+
+# Bibliotecas locais
+lib/
+
+# IDEs
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
