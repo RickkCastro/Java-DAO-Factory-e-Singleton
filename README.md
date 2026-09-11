@@ -21,8 +21,10 @@ sendo `id_filme` a chave primária (gerada pela sequence `SEQ_FILME`):
 
 ## Estrutura de pacotes
 
+Projeto Java puro (sem Maven, sem frameworks) — apenas `src/` e o driver em `lib/`.
+
 ```
-src/main/java/br/com/fiap/
+src/br/com/fiap/
 ├── model/
 │   └── Filme.java                  # Entidade: atributos privados + getters/setters
 ├── connection/
@@ -36,6 +38,7 @@ src/main/java/br/com/fiap/
 └── main/
     └── Main.java                   # Demonstração integrada dos três padrões
 
+lib/ojdbc11.jar                     # Driver JDBC do Oracle (já incluído)
 sql/tb_filme.sql                    # Script de criação da tabela e da sequence
 ```
 
@@ -71,32 +74,52 @@ a tabela `TB_FILME` e a sequence `SEQ_FILME`.
 
 ## Como executar
 
-### Opção 1 — Maven (baixa o driver automaticamente)
+O driver **`lib/ojdbc11.jar` já vem no projeto**, então basta colocá-lo no
+classpath. Não é necessário Maven.
+
+### Eclipse
+
+1. `File > Import > Existing Projects into Workspace` (ou `File > New > Java Project`
+   apontando para esta pasta).
+2. Clique com o botão direito no projeto → `Build Path > Configure Build Path...`
+   → aba `Libraries` → `Add JARs...` → selecione `lib/ojdbc11.jar` → `Apply and Close`.
+3. Botão direito em `Main.java` → `Run As > Java Application`.
+
+### IntelliJ IDEA
+
+1. `Open` nesta pasta e marque `src` como *Sources Root* (botão direito → `Mark Directory as`).
+2. `File > Project Structure > Libraries > +  > Java` → selecione `lib/ojdbc11.jar`.
+3. Rode a classe `Main`.
+
+### VS Code
+
+Com o *Extension Pack for Java* instalado, o `src/` e o `lib/*.jar` são detectados
+automaticamente — é só abrir a pasta e clicar em `Run` acima do `main`.
+
+### Terminal (javac / java)
 
 ```bash
-mvn clean compile
-mvn exec:java -Dexec.mainClass=br.com.fiap.main.Main
+# Linux / macOS
+javac -encoding UTF-8 -d bin $(find src -name "*.java")
+java -cp bin:lib/ojdbc11.jar br.com.fiap.main.Main
 ```
 
-### Opção 2 — javac/java com o ojdbc no classpath
-
-Baixe o `ojdbc11.jar` (ou use o que já vem com o Oracle SQL Developer) e coloque
-na pasta `lib/`:
-
-```bash
-# Linux/macOS
-javac -d bin $(find src/main/java -name "*.java")
-java -cp bin:lib/ojdbc11.jar br.com.fiap.main.Main
-
-# Windows
-javac -d bin src\main\java\br\com\fiap\**\*.java
+```bat
+:: Windows (cmd)
+dir /s /b src\*.java > sources.txt
+javac -encoding UTF-8 -d bin @sources.txt
 java -cp bin;lib\ojdbc11.jar br.com.fiap.main.Main
 ```
 
-### Opção 3 — Eclipse / IntelliJ
+### Se der erro ao rodar
 
-Importe o projeto, adicione o `ojdbc11.jar` ao *Build Path* (ou deixe o Maven
-resolver) e rode a classe `br.com.fiap.main.Main`.
+| Erro | Causa / solução |
+|---|---|
+| `ClassNotFoundException: oracle.jdbc.driver.OracleDriver` | O `ojdbc11.jar` não está no classpath — refaça o passo do *Build Path* / `-cp`. |
+| `ORA-00942: table or view does not exist` | A tabela não foi criada — rode o `sql/tb_filme.sql`. |
+| `ORA-01017: invalid username/password` | Usuário/senha em `ConnectionManager` diferentes do seu RM. |
+| `IO Error: The Network Adapter could not establish the connection` (ou trava) | O `oracle.fiap.com.br` só é acessível da rede da FIAP ou pela VPN. |
+| `ORA-00001: unique constraint (PK_FILME)` | A sequence está atrasada em relação à tabela — recrie a sequence. |
 
 ## O que a Main demonstra
 

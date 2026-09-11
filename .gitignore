@@ -5,7 +5,7 @@ out/
 *.class
 
 # Bibliotecas locais
-lib/
+# (o driver ojdbc11.jar fica versionado em lib/ para o projeto rodar sem Maven)
 
 # IDEs
 .idea/
